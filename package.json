@@ -21,7 +21,7 @@
     "formik": "^2.4.6",
     "formik-material-ui": "^4.0.0-alpha.2",
     "react-chartjs-2": "^5.2.0",
-    "react-datepicker": "^7.4.0",
+    "react-datepicker": "^8.4.0",
     "react-loader-spinner": "^6.1.6",
     "react-router-dom": "^7.1.1",
     "react-spinners": "^0.15.0",
