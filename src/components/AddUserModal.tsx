@@ -32,7 +32,6 @@ export default function AddUserModal(props: {
     const [klavyio, setKlaviyo] = React.useState('');
     const [facebook, setFacebook] = React.useState('');
     const [shopify, setShopify] = React.useState('');
-    const [google, setGoogle] = React.useState('');
     const handleSubmit = async () => {
         const data = {
             name,
@@ -40,8 +39,7 @@ export default function AddUserModal(props: {
             password,
             klavyio,
             facebook,
-            shopify,
-            google
+            shopify
         }
         
         const addUser = await axios.post(`${process.env.REACT_APP_API}/user/add`,{
@@ -106,13 +104,6 @@ export default function AddUserModal(props: {
                         label="Shopify API key"
                         variant="outlined"
                         onChange={(e) => {setShopify(e.target.value)}}
-                    />
-                    <TextField
-                        style={{ width: "200px", margin: "5px" }}
-                        type="text"
-                        label="Google API key"
-                        variant="outlined"
-                        onChange={(e) => {setGoogle(e.target.value)}}
                     />
                     <p style={{color:"red"}}>{errorMessage}</p>
                     <button style={{

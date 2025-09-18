@@ -56,7 +56,6 @@ const UserGraph = () => {
       <h2 style={{marginLeft:"30px"}}>How does your digital carbon footprint compare to the industry?</h2>
           <IndustryComparisonCard title={"Shopify"} color={"green"} yourScore={data?.shopifyCarbonFootprint} industryAvarage={875}/>
           <IndustryComparisonCard title={"META"} color={"blue"} yourScore={data?.facebookCarbonFootprint} industryAvarage={560}/>
-          <IndustryComparisonCard title={"Google"} color={"red"} yourScore={data?.googleCarbonFootprint} industryAvarage={780}/>
           <IndustryComparisonCard title={"Klaviyo"} color={"orange"} yourScore={data?.klaviyoCarbonFootprint} industryAvarage={180}/>
     </Box> : 
         <PuffLoader

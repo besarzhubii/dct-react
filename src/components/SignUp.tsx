@@ -76,7 +76,6 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
     const [klavyio, setKlaviyo] = React.useState('');
     const [facebook, setFacebook] = React.useState('');
     const [shopify, setShopify] = React.useState('');
-    const [google, setGoogle] = React.useState('');
   const navigate = useNavigate();
   React.useEffect(() => {
     setMode('dark');
@@ -92,8 +91,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         password,
         klavyio,
         facebook,
-        shopify,
-        google
+        shopify
     }
     
     const addUser = await axios.post(`${process.env.REACT_APP_API}/user/add`,{
@@ -173,13 +171,6 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                   label="Shopify API key"
                   variant="outlined"
                   onChange={(e) => {setShopify(e.target.value)}}
-              />
-              <TextField
-              style={{marginBottom:'15px'}}
-                  type="text"
-                  label="Google API key"
-                  variant="outlined"
-                  onChange={(e) => {setGoogle(e.target.value)}}
               />
             </FormControl>
             {errorMessage}

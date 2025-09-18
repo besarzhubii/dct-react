@@ -179,20 +179,12 @@ const Dashboard = (props) => {
 
       <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }} gap={3}>
         <DashboardCard
-          title="META"
+          title="Meta (Facebook)"
           value={data?.facebookCarbonFootprint}
           percentage={0}
           color="blue"
           chartData={chartDataTemplates[0]}
           img="https://pngimg.com/uploads/meta/meta_PNG5.png"
-        />
-        <DashboardCard
-          title="Google"
-          value={data?.googleCarbonFootprint}
-          percentage={0}
-          color="red"
-          chartData={chartDataTemplates[1]}
-          img="https://www.pngmart.com/files/23/Google-Ads-Logo-PNG-File.png"
         />
         <DashboardCard
           title="Shopify"

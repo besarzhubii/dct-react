@@ -137,17 +137,17 @@ const DigitalCarbonDashboard = (props) => {
                                     justifyContent="center"
                                 >
                                     <Typography variant="h4" component="div" color="textPrimary" fontWeight="bold">
-                                        {sumFootprint(secondData?.facebookCarbonFootprint , secondData?.googleCarbonFootprint , secondData?.shopifyCarbonFootprint , secondData?.klaviyoCarbonFootprint)*100/sumFootprint(secondData?.facebookCarbonFootprint , secondData?.googleCarbonFootprint , secondData?.shopifyCarbonFootprint , secondData?.klaviyoCarbonFootprint)}
+                                        {sumFootprint(secondData?.facebookCarbonFootprint , secondData?.shopifyCarbonFootprint , secondData?.klaviyoCarbonFootprint)*100/sumFootprint(secondData?.facebookCarbonFootprint , secondData?.shopifyCarbonFootprint , secondData?.klaviyoCarbonFootprint)}
                                     </Typography>
                                 </Box>
                             </Box>
                             <Box marginTop={3} display="flex" justifyContent="center" alignItems="center" flexDirection="column" textAlign="center">
                                 <Typography variant="body1" fontWeight="bold" color="textPrimary">Total Digital Carbon</Typography>
-                                <Typography variant="body1" color="textPrimary">{sumFootprint(data?.facebookCarbonFootprint , data?.googleCarbonFootprint ,data?.shopifyCarbonFootprint ,data?.klaviyoCarbonFootprint)}</Typography>
+                                <Typography variant="body1" color="textPrimary">{sumFootprint(data?.facebookCarbonFootprint , data?.shopifyCarbonFootprint ,data?.klaviyoCarbonFootprint)}</Typography>
                             </Box>
                             <Box marginTop={1} display="flex" justifyContent="center" alignItems="center" flexDirection="column" textAlign="center">
                                 <Typography variant="body1" color="textSecondary">Total Digital Wastage</Typography>
-                                <Typography variant="body1" color="textSecondary">{sumFootprint(secondData?.facebookCarbonFootprint , secondData?.googleCarbonFootprint , secondData?.shopifyCarbonFootprint , secondData?.klaviyoCarbonFootprint)}</Typography>
+                                <Typography variant="body1" color="textSecondary">{sumFootprint(secondData?.facebookCarbonFootprint , secondData?.shopifyCarbonFootprint , secondData?.klaviyoCarbonFootprint)}</Typography>
                             </Box>
                         </CardContent>
                     </Card>
