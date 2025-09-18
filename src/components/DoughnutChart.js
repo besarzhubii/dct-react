@@ -242,7 +242,7 @@ const DoughnutChart = (props) => {
                   variant="h5"
                   sx={{ color: "#4CAF50", fontWeight: "bold" }}
                 >
-                  {(data?.facebookCarbonFootprint + data?.googleCarbonFootprint + data?.shopifyCarbonFootprint + data?.klaviyoCarbonFootprint)/4}
+                  {(data?.facebookCarbonFootprint + data?.shopifyCarbonFootprint + data?.klaviyoCarbonFootprint)/3}
                 </Typography>
                 <Typography
                   variant="caption"
@@ -262,7 +262,7 @@ const DoughnutChart = (props) => {
                   variant="h5"
                   sx={{ color: "#F44336", fontWeight: "bold" }}
                 >
-                  {(secondData?.facebookCarbonFootprint + secondData?.googleCarbonFootprint + secondData?.shopifyCarbonFootprint + secondData?.klaviyoCarbonFootprint)/4}
+                  {(secondData?.facebookCarbonFootprint + secondData?.shopifyCarbonFootprint + secondData?.klaviyoCarbonFootprint)/3}
                 </Typography>
                 <Typography
                   variant="caption"

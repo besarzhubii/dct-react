@@ -49,7 +49,6 @@ const Main = () => {
           <h2 style={{marginLeft:"30px"}}>How does your digital carbon footprint compare to the industry?</h2>
           <IndustryComparisonCard img="https://upload.wikimedia.org/wikipedia/commons/e/e1/Shopify_Logo.png" title={"Shopify"} color={"green"} yourScore={data?.shopifyCarbonFootprint} industryAvarage={875}/>
           <IndustryComparisonCard img="https://pngimg.com/uploads/meta/meta_PNG5.png" title={"META"} color={"blue"} yourScore={data?.facebookCarbonFootprint} industryAvarage={560}/>
-          <IndustryComparisonCard img="https://www.pngmart.com/files/23/Google-Ads-Logo-PNG-File.png" title={"Google"} color={"red"} yourScore={data?.googleCarbonFootprint} industryAvarage={780}/>
           <IndustryComparisonCard img="https://upload.wikimedia.org/wikipedia/en/thumb/b/b0/Klaviyo_primary_logo.svg/2560px-Klaviyo_primary_logo.svg.png" title={"Klaviyo"} color={"orange"} yourScore={data?.klaviyoCarbonFootprint} industryAvarage={180}/>
         </Box> :
         <ClipLoader

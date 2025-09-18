@@ -43,7 +43,6 @@ const ProfileForm = () => {
     klavyio: '',
     shopify: '',
     facebook: '',
-    google: '',
     role: ''
   });
   const [error, setError] = React.useState('');
@@ -196,20 +195,6 @@ const ProfileForm = () => {
                     value={userData.facebook}
                     onChange={handleInputChange}
                     placeholder="Enter Facebook ID"
-                    fullWidth
-                    variant="outlined"
-                    required
-                  />
-                </FormControl>
-  
-                <FormControl>
-                  <FormLabel htmlFor="google">Google</FormLabel>
-                  <TextField
-                    id="google"
-                    name="google"
-                    value={userData.google}
-                    onChange={handleInputChange}
-                    placeholder="Enter Google ID"
                     fullWidth
                     variant="outlined"
                     required
