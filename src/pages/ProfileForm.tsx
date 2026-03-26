@@ -43,6 +43,7 @@ const ProfileForm = () => {
     klavyio: '',
     shopify: '',
     facebook: '',
+    google: '',
     role: ''
   });
   const [error, setError] = React.useState('');
@@ -188,16 +189,30 @@ const ProfileForm = () => {
                 </FormControl>
   
                 <FormControl>
-                  <FormLabel htmlFor="facebook">Facebook</FormLabel>
+                  <FormLabel htmlFor="facebook">Facebook / Meta Access Token</FormLabel>
                   <TextField
                     id="facebook"
                     name="facebook"
                     value={userData.facebook}
                     onChange={handleInputChange}
-                    placeholder="Enter Facebook ID"
+                    placeholder="Enter Meta/Facebook Access Token"
                     fullWidth
                     variant="outlined"
-                    required
+                    multiline
+                    rows={2}
+                  />
+                </FormControl>
+  
+                <FormControl>
+                  <FormLabel htmlFor="google">Google Ads Developer Token</FormLabel>
+                  <TextField
+                    id="google"
+                    name="google"
+                    value={userData.google}
+                    onChange={handleInputChange}
+                    placeholder="Enter Google Ads Developer Token"
+                    fullWidth
+                    variant="outlined"
                   />
                 </FormControl>
   

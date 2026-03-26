@@ -13,9 +13,28 @@ const DashboardCard = ({ title, value, percentage, color, chartData, img }) => (
   <Card sx={{ minWidth: 180, margin: '10px', padding: '20px', borderRadius: '15px', boxShadow: 3 }}>
     <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
       <Box sx={{ flex: 1 }}>
-        <img src={img} alt="not found" style={{
-          width:"35%"
-        }}/>
+        <Box sx={{ 
+          width: '60px', 
+          height: '60px', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          marginBottom: '12px'
+        }}>
+          <img 
+            src={img} 
+            alt={title}
+            style={{
+              maxWidth: '100%',
+              maxHeight: '100%',
+              objectFit: 'contain'
+            }}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjZTBlMGUwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Mb2dvPC90ZXh0Pjwvc3ZnPg==';
+            }}
+          />
+        </Box>
         <Typography variant="subtitle2" color="text.secondary">
           {title}
         </Typography>
@@ -66,10 +85,11 @@ const DashboardCard = ({ title, value, percentage, color, chartData, img }) => (
 );
 
 const Dashboard = (props) => {
-  const data = props?.data;
+  const aggregatedData = props?.data;
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const userName = params.get('userName');
+  const userStoredData = JSON.parse(localStorage.getItem('user') || '{}');
+  const userName = params.get('userName') || userStoredData?.name || aggregatedData?.userName || 'User';
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
@@ -180,27 +200,43 @@ const Dashboard = (props) => {
       <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }} gap={3}>
         <DashboardCard
           title="Meta (Facebook)"
-          value={data?.facebookCarbonFootprint}
+          value={aggregatedData?.platforms?.meta?.digitalCarbonFootprint ? 
+            `${aggregatedData.platforms.meta.digitalCarbonFootprint.toFixed(2)} kg CO2` : 
+            'N/A'}
           percentage={0}
           color="blue"
           chartData={chartDataTemplates[0]}
-          img="https://pngimg.com/uploads/meta/meta_PNG5.png"
+          img="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Meta_Platforms_Inc._logo.svg/320px-Meta_Platforms_Inc._logo.svg.png"
         />
         <DashboardCard
           title="Shopify"
-          value={data?.shopifyCarbonFootprint}
+          value={aggregatedData?.platforms?.shopify?.digitalCarbonFootprint ? 
+            `${aggregatedData.platforms.shopify.digitalCarbonFootprint.toFixed(2)} kg CO2` : 
+            'N/A'}
           percentage={0}
           color="green"
           chartData={chartDataTemplates[2]}
-          img="https://upload.wikimedia.org/wikipedia/commons/e/e1/Shopify_Logo.png"
+          img="https://cdn.worldvectorlogo.com/logos/shopify.svg"
         />
         <DashboardCard
           title="Klaviyo"
-          value={data?.klaviyoCarbonFootprint}
+          value={aggregatedData?.platforms?.klaviyo?.digitalCarbonFootprint ? 
+            `${aggregatedData.platforms.klaviyo.digitalCarbonFootprint.toFixed(2)} kg CO2` : 
+            'N/A'}
           percentage={0}
           color="orange"
           chartData={chartDataTemplates[3]}
-          img="https://upload.wikimedia.org/wikipedia/en/thumb/b/b0/Klaviyo_primary_logo.svg/2560px-Klaviyo_primary_logo.svg.png"
+          img="/images/klaviyo.png"
+        />
+        <DashboardCard
+          title="Google Ads"
+          value={aggregatedData?.platforms?.google?.digitalCarbonFootprint ? 
+            `${aggregatedData.platforms.google.digitalCarbonFootprint.toFixed(2)} kg CO2` : 
+            'N/A'}
+          percentage={0}
+          color="#4285F4"
+          chartData={chartDataTemplates[1]}
+          img="https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png"
         />
       </Box>
     </Box>

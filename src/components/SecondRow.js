@@ -23,9 +23,15 @@ ChartJS.register(
 );
 
 const DigitalCarbonDashboard = (props) => {
-    const { data, secondData, testRow } = props;
+    const { data } = props;
     const [activeIndex, setActiveIndex] = useState(null);
     const chartRef = useRef(null);
+    
+    // Extract metrics from aggregated data
+    const aggregated = data?.aggregated || {};
+    const totalFootprint = aggregated.digitalCarbonFootprint || 0;
+    const totalWastage = aggregated.digitalCarbonWastage || 0;
+    const carbonScore = aggregated.digitalCarbonScore || 0;
 
     const chartData = {
         labels: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N'],
@@ -125,7 +131,17 @@ const DigitalCarbonDashboard = (props) => {
                                 </IconButton>
                             </Box>
                             <Box position="relative" display="inline-flex" marginTop={2} justifyContent="center" alignItems="center">
-                                <CircularProgress variant="determinate" value={38} size={150} thickness={3} style={{ color: 'rgba(102, 102, 255, 1)' }} />
+                                <CircularProgress 
+                                    variant="determinate" 
+                                    value={Math.min(100, Math.max(0, carbonScore))} 
+                                    size={150} 
+                                    thickness={3} 
+                                    style={{ 
+                                        color: carbonScore >= 80 ? '#4CAF50' : 
+                                               carbonScore >= 60 ? '#2196F3' : 
+                                               carbonScore >= 40 ? '#FF9800' : '#F44336' 
+                                    }} 
+                                />
                                 <Box
                                     top={0}
                                     left={0}
@@ -137,17 +153,31 @@ const DigitalCarbonDashboard = (props) => {
                                     justifyContent="center"
                                 >
                                     <Typography variant="h4" component="div" color="textPrimary" fontWeight="bold">
-                                        {sumFootprint(secondData?.facebookCarbonFootprint , secondData?.shopifyCarbonFootprint , secondData?.klaviyoCarbonFootprint)*100/sumFootprint(secondData?.facebookCarbonFootprint , secondData?.shopifyCarbonFootprint , secondData?.klaviyoCarbonFootprint)}
+                                        {carbonScore.toFixed(0)}
                                     </Typography>
                                 </Box>
                             </Box>
                             <Box marginTop={3} display="flex" justifyContent="center" alignItems="center" flexDirection="column" textAlign="center">
                                 <Typography variant="body1" fontWeight="bold" color="textPrimary">Total Digital Carbon</Typography>
-                                <Typography variant="body1" color="textPrimary">{sumFootprint(data?.facebookCarbonFootprint , data?.shopifyCarbonFootprint ,data?.klaviyoCarbonFootprint)}</Typography>
+                                <Typography variant="body1" color="textPrimary">{totalFootprint.toFixed(2)} kg CO2</Typography>
                             </Box>
                             <Box marginTop={1} display="flex" justifyContent="center" alignItems="center" flexDirection="column" textAlign="center">
                                 <Typography variant="body1" color="textSecondary">Total Digital Wastage</Typography>
-                                <Typography variant="body1" color="textSecondary">{sumFootprint(secondData?.facebookCarbonFootprint , secondData?.shopifyCarbonFootprint , secondData?.klaviyoCarbonFootprint)}</Typography>
+                                <Typography variant="body1" color="textSecondary">{totalWastage.toFixed(2)} kg CO2</Typography>
+                            </Box>
+                            <Box marginTop={1} display="flex" justifyContent="center" alignItems="center" flexDirection="column" textAlign="center">
+                                <Typography variant="body2" fontWeight="bold" color="textPrimary">Rating</Typography>
+                                <Typography 
+                                    variant="body2" 
+                                    sx={{ 
+                                        color: carbonScore >= 80 ? '#4CAF50' : 
+                                               carbonScore >= 60 ? '#2196F3' : 
+                                               carbonScore >= 40 ? '#FF9800' : '#F44336',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    {aggregated.rating || 'N/A'}
+                                </Typography>
                             </Box>
                         </CardContent>
                     </Card>

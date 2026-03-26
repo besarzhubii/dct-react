@@ -24,34 +24,66 @@ ChartJS.register(
 );
 
 const DoughnutChart = (props) => {
-  const { data, secondData } = props;
+  const { data } = props;
+  
+  // Extract platform data
+  const shopifyFootprint = data?.platforms?.shopify?.digitalCarbonFootprint || 0;
+  const metaFootprint = data?.platforms?.meta?.digitalCarbonFootprint || 0;
+  const klaviyoFootprint = data?.platforms?.klaviyo?.digitalCarbonFootprint || 0;
+  const googleFootprint = data?.platforms?.google?.digitalCarbonFootprint || 0;
+  
+  const totalFootprint = shopifyFootprint + metaFootprint + klaviyoFootprint + googleFootprint;
+  
+  // Calculate percentages
+  const calculatePercentage = (value) => totalFootprint > 0 ? ((value / totalFootprint) * 100).toFixed(1) : 0;
+  
   // Doughnut Chart Data
   const doughnutData = {
-    labels: ["Desktop", "Mobile", "Tablet", "Unknown"],
+    labels: ["Shopify", "Meta", "Klaviyo", "Google"],
     datasets: [
       {
-        data: [0, 0, 0, 0],
-        backgroundColor: ["#7E57C2", "#29B6F6", "#66BB6A", "#EF5350"],
+        data: [shopifyFootprint, metaFootprint, klaviyoFootprint, googleFootprint],
+        backgroundColor: ["#66BB6A", "#29B6F6", "#FF9800", "#7E57C2"],
         hoverOffset: 4,
       },
     ],
   };
 
   const doughnutOptions = {
-    maintainAspectRatio: false, // Allows manual resizing
-    cutout: "70%", // Controls the size of the inner radius
+    maintainAspectRatio: false,
+    cutout: "70%",
     plugins: {
       legend: {
-        display: false, // Disables the default legend
+        display: false,
       },
     },
   };
 
   const doughnutLabels = [
-    { name: "Desktop", value: "$0", percentage: "25%", color: "#7E57C2" },
-    { name: "Mobile", value: "$0", percentage: "25%", color: "#29B6F6" },
-    { name: "Tablet", value: "$0", percentage: "25%", color: "#66BB6A" },
-    { name: "Unknown", value: "$0", percentage: "25%", color: "#EF5350" },
+    { 
+      name: "Shopify", 
+      value: `${shopifyFootprint.toFixed(2)} kg`, 
+      percentage: `${calculatePercentage(shopifyFootprint)}%`, 
+      color: "#66BB6A" 
+    },
+    { 
+      name: "Meta", 
+      value: `${metaFootprint.toFixed(2)} kg`, 
+      percentage: `${calculatePercentage(metaFootprint)}%`, 
+      color: "#29B6F6" 
+    },
+    { 
+      name: "Klaviyo", 
+      value: `${klaviyoFootprint.toFixed(2)} kg`, 
+      percentage: `${calculatePercentage(klaviyoFootprint)}%`, 
+      color: "#FF9800" 
+    },
+    { 
+      name: "Google", 
+      value: `${googleFootprint.toFixed(2)} kg`, 
+      percentage: `${calculatePercentage(googleFootprint)}%`, 
+      color: "#7E57C2" 
+    },
   ];
 
   // Line Chart Data
@@ -236,19 +268,19 @@ const DoughnutChart = (props) => {
                   variant="body2"
                   sx={{ color: "#555555", marginBottom: "5px" }}
                 >
-                  Average Score
+                  Total Footprint
                 </Typography>
                 <Typography
                   variant="h5"
                   sx={{ color: "#4CAF50", fontWeight: "bold" }}
                 >
-                  {(data?.facebookCarbonFootprint + data?.shopifyCarbonFootprint + data?.klaviyoCarbonFootprint)/3}
+                  {totalFootprint.toFixed(2)} kg
                 </Typography>
                 <Typography
                   variant="caption"
                   sx={{ color: "#4CAF50", fontWeight: "bold" }}
                 >
-                   0%
+                   CO2
                 </Typography>
               </Box>
               <Box>
@@ -256,19 +288,19 @@ const DoughnutChart = (props) => {
                   variant="body2"
                   sx={{ color: "#555555", marginBottom: "5px" }}
                 >
-                  Average Wastage
+                  Total Wastage
                 </Typography>
                 <Typography
                   variant="h5"
                   sx={{ color: "#F44336", fontWeight: "bold" }}
                 >
-                  {(secondData?.facebookCarbonFootprint + secondData?.shopifyCarbonFootprint + secondData?.klaviyoCarbonFootprint)/3}
+                  {(data?.aggregated?.digitalCarbonWastage || 0).toFixed(2)} kg
                 </Typography>
                 <Typography
                   variant="caption"
                   sx={{ color: "#F44336", fontWeight: "bold" }}
                 >
-                  0%
+                  CO2
                 </Typography>
               </Box>
             </Box>

@@ -90,6 +90,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
     }
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    console.log(process.env.REACT_APP_API)
     axios.post(`${process.env.REACT_APP_API}/user/login`,{
       email: data?.get('email'),
       password: data?.get('password'),
