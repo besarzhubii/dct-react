@@ -1,233 +1,235 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
-import MuiCard from '@mui/material/Card';
-import CircularProgress from '@mui/material/CircularProgress';
-import { styled } from '@mui/material/styles';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-
-const Card = styled(MuiCard)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignSelf: 'center',
-  width: '100%',
-  padding: theme.spacing(4),
-  gap: theme.spacing(2),
-  margin: 'auto',
-  [theme.breakpoints.up('sm')]: {
-    maxWidth: '450px',
+import React, { useEffect, useState } from "react";
+import AppShell from "../components/AppShell";
+import Icon from "../components/Icon";
+import { api, getSession, errorMessage } from "../services/client";
+const connections = [
+  {
+    field: "shopify",
+    name: "Shopify",
+    symbol: "S",
+    logo: "shopify",
+    hint: "Shopify access token",
   },
-  boxShadow:
-    'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
-  ...theme.applyStyles('dark', {
-    boxShadow:
-      'hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px',
-  }),
-}));
-
-const ProfileForm = () => {
-  const navigate = useNavigate();
-
-  const [userData, setUserData] = React.useState({
-    name: '',
-    email: '',
-    password: '',
-    klavyio: '',
-    shopify: '',
-    facebook: '',
-    google: '',
-    role: ''
+  {
+    field: "facebook",
+    name: "Meta Ads",
+    symbol: "∞",
+    logo: "meta",
+    hint: "Meta access token",
+  },
+  {
+    field: "klavyio",
+    name: "Klaviyo",
+    symbol: "K",
+    logo: "klaviyo",
+    hint: "Private API key",
+  },
+  {
+    field: "google",
+    name: "Google Ads",
+    symbol: "G",
+    logo: "google",
+    hint: "Google Ads developer token",
+  },
+];
+export default function ProfileForm() {
+  const userId = getSession()?.id;
+  const [form, setForm] = useState<any>({
+    name: "",
+    email: "",
+    shopify: "",
+    facebook: "",
+    klavyio: "",
+    google: "",
   });
-  const [error, setError] = React.useState('');
-  const [success, setSuccess] = React.useState('');
-  const [isLoading, setIsLoading] = React.useState(false);
-  const user = JSON.parse(localStorage.getItem('user') as any);
-  const userId = JSON.parse(localStorage.getItem('user') as any).id;
-
-  React.useEffect(() => {
-    setIsLoading(true);
-    axios
-      .get(`${process.env.REACT_APP_API}/user/${user?.id}`)
-      .then((response) => {
-        setUserData(response.data);
-        setError('');
-        setIsLoading(false);
+  const [loading, setLoading] = useState(true);
+  const [loaded, setLoaded] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [retry, setRetry] = useState(0);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    api
+      .get(`/user/${userId}`)
+      .then(({ data }) => {
+        if (active) {
+          setForm(data);
+          setLoaded(true);
+          setError("");
+        }
       })
-      .catch((error) => {
-        console.error(error);
-        setError('Failed to fetch user data.');
-        setIsLoading(false);
-      });
-  }, [userId]);
-
-  const handleInputChange = (e: any) => {
-    const { name, value } = e.target;
-
-    if (name === "emaieel") {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value)) {
-        setError("Invalid email format.");
-        return;
-      } else {
-        setError("");
-      }
-    }
-
-    setUserData({ ...userData, [name]: value });
-  };
-
-  const handleSubmit = (event: any) => {
-    event.preventDefault();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(userData.email)) {
-      setError("Invalid email format.");
-      return;
-    } else {
-      setError("");
-    }
-    setIsLoading(true);
-    axios
-      .put(`${process.env.REACT_APP_API}/user/${user?.id}`, userData)
-      .then(() => {
-        setIsLoading(false);
-        setError('');
-        setSuccess('User updated successfully!');
+      .catch((err) => {
+        if (active) setError(errorMessage(err));
       })
-      .catch((error) => {
-        setIsLoading(false);
-        setError('Failed to update profile.');
+      .finally(() => {
+        if (active) setLoading(false);
       });
-  };
-
+    return () => {
+      active = false;
+    };
+  }, [userId, retry]);
+  function change(e: React.ChangeEvent<HTMLInputElement>) {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setSuccess("");
+  }
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
+    setSuccess("");
+    try {
+      const { data } = await api.put(`/user/${userId}`, form);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
+        }),
+      );
+      setSuccess("Profile and connections saved.");
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setSaving(false);
+    }
+  }
   return (
-    <Box sx={{ display: 'flex', backgroundColor: '#f8f8f8' }}>
-      <Sidebar />
-      {
-        !isLoading ? 
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-          <CssBaseline enableColorScheme />
-          <Stack direction="column" justifyContent="center" sx={{ minHeight: '100vh', padding: 2 }}>
-            <Card variant="outlined">
-              <Typography
-                component="h1"
-                variant="h4"
-                sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
+    <AppShell title="Connections">
+      <div className="page-heading">
+        <div>
+          <div className="heading-overline">
+            <span className="tiny-orb" /> Your workspace, connected
+          </div>
+          <h1>
+            Profile & connections<span className="heading-dot">.</span>
+          </h1>
+          <p>Keep your details and digital channels in one place.</p>
+        </div>
+      </div>
+      {loading ? (
+        <p role="status">Loading your profile…</p>
+      ) : !loaded ? (
+        <div className="glass error-state" role="alert">
+          <h2>Could not load your profile</h2>
+          <p>{error}</p>
+          <button
+            className="button primary"
+            onClick={() => setRetry((n) => n + 1)}
+          >
+            Try again
+          </button>
+        </div>
+      ) : (
+        <form onSubmit={submit}>
+          {error && (
+            <div className="form-error" role="alert">
+              {error}{" "}
+              <button
+                type="button"
+                className="text-button"
+                onClick={() => setRetry((n) => n + 1)}
               >
-                Update Profile
-              </Typography>
-              <Box
-                component="form"
-                onSubmit={handleSubmit}
-                noValidate
-                sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 2 }}
-              >
-                <FormControl>
-                  <FormLabel htmlFor="name">Name</FormLabel>
-                  <TextField
-                    id="name"
-                    name="name"
-                    value={userData.name}
-                    onChange={handleInputChange}
-                    placeholder="Enter your name"
-                    fullWidth
-                    variant="outlined"
-                    required
-                  />
-                </FormControl>
-  
-                <FormControl>
-                  <FormLabel htmlFor="email">Email</FormLabel>
-                  <TextField
-                    id="email"
-                    name="email"
-                    value={userData.email}
-                    onChange={handleInputChange}
-                    placeholder="Enter your email"
-                    type="email"
-                    fullWidth
-                    variant="outlined"
-                    required
-                    error={!!error}
-                    helperText={error}
-                  />
-                </FormControl>
-  
-                <FormControl>
-                  <FormLabel htmlFor="klavyio">Klavyio</FormLabel>
-                  <TextField
-                    id="klavyio"
-                    name="klavyio"
-                    value={userData.klavyio}
-                    onChange={handleInputChange}
-                    placeholder="Enter Klavyio ID"
-                    fullWidth
-                    variant="outlined"
-                    required
-                  />
-                </FormControl>
-  
-                <FormControl>
-                  <FormLabel htmlFor="shopify">Shopify</FormLabel>
-                  <TextField
-                    id="shopify"
-                    name="shopify"
-                    value={userData.shopify}
-                    onChange={handleInputChange}
-                    placeholder="Enter Shopify ID"
-                    fullWidth
-                    variant="outlined"
-                    required
-                  />
-                </FormControl>
-  
-                <FormControl>
-                  <FormLabel htmlFor="facebook">Facebook / Meta Access Token</FormLabel>
-                  <TextField
-                    id="facebook"
-                    name="facebook"
-                    value={userData.facebook}
-                    onChange={handleInputChange}
-                    placeholder="Enter Meta/Facebook Access Token"
-                    fullWidth
-                    variant="outlined"
-                    multiline
-                    rows={2}
-                  />
-                </FormControl>
-  
-                <FormControl>
-                  <FormLabel htmlFor="google">Google Ads Developer Token</FormLabel>
-                  <TextField
-                    id="google"
-                    name="google"
-                    value={userData.google}
-                    onChange={handleInputChange}
-                    placeholder="Enter Google Ads Developer Token"
-                    fullWidth
-                    variant="outlined"
-                  />
-                </FormControl>
-  
-                {error && <Typography color="error">{error}</Typography>}
-                {success && <Typography color="success">{success}</Typography>}
-                <Button type="submit" fullWidth variant="contained">
-                  Update Profile
-                </Button>
-              </Box>
-            </Card>
-          </Stack>
-        </Box> : <CircularProgress />
-      }
-    </Box>
+                Reload profile
+              </button>
+            </div>
+          )}
+          {success && (
+            <div className="form-success" role="status">
+              {success}
+            </div>
+          )}
+          <div className="settings-grid">
+            <section className="glass form-panel">
+              <div className="panel-heading">
+                <div>
+                  <h2>Personal details</h2>
+                  <p>How you appear in your workspace</p>
+                </div>
+                <Icon name="users" />
+              </div>
+              <label className="field">
+                Full name
+                <input
+                  required
+                  name="name"
+                  value={form.name}
+                  onChange={change}
+                  maxLength={100}
+                  autoComplete="name"
+                />
+              </label>
+              <label className="field">
+                Email address
+                <input
+                  required
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={change}
+                  autoComplete="email"
+                />
+              </label>
+              <p className="form-hint">
+                Your platform credentials are used to retrieve analytics. Leave
+                a connection empty to disconnect it.
+              </p>
+              <p className="form-hint">
+                This development server stores changes in memory. Restarting it
+                resets profile changes.
+              </p>
+            </section>
+            <section className="glass form-panel">
+              <div className="panel-heading">
+                <div>
+                  <h2>Platform connections</h2>
+                  <p>Credentials for your digital channels</p>
+                </div>
+                <Icon name="globe" />
+              </div>
+              {connections.map((c) => (
+                <div className="connection-field" key={c.field}>
+                  <div className="platform-cell">
+                    <span className={`platform-logo logo-${c.logo}`}>
+                      {c.symbol}
+                    </span>
+                    <span>{c.name}</span>
+                    <span
+                      className={`status-pill ${form[c.field] ? "connected" : "disconnected"}`}
+                    >
+                      {form[c.field] ? "Configured" : "Not connected"}
+                    </span>
+                  </div>
+                  <label className="field">
+                    {c.hint}
+                    <input
+                      name={c.field}
+                      type="password"
+                      value={form[c.field] || ""}
+                      onChange={change}
+                      placeholder={c.hint}
+                      autoComplete="off"
+                    />
+                  </label>
+                </div>
+              ))}
+              <p className="form-hint">
+                Shopify and Google Ads currently return sample data. Meta and
+                Klaviyo also use sample data when their connection fails.
+              </p>
+            </section>
+          </div>
+          <div className="form-actions">
+            <button className="button primary" disabled={saving} type="submit">
+              <Icon name="check" size={16} />
+              {saving ? "Saving…" : "Save changes"}
+            </button>
+          </div>
+        </form>
+      )}
+    </AppShell>
   );
-};
-
-export default ProfileForm;
+}

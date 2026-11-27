@@ -1,3 +1,35 @@
+# Carbontrack local development
+
+The app uses a React frontend and the API in the sibling dct-back directory. The redesign includes a responsive dark glass dashboard, profile/connections, team management, and sign-in/sign-up.
+
+Start the API in dct-back with npm start (127.0.0.1:3004). In another PowerShell terminal, start this frontend with $env:PORT='3010'; $env:BROWSER='none'; npm start. REACT_APP_API can override the backend URL; it defaults to http://127.0.0.1:3004.
+
+The development account is test@test.com / 123456. User changes are stored in memory and reset when the API restarts.
+
+Validation commands in this directory:
+
+- npm test -- --watchAll=false --runInBand
+- npm run build
+- npm run test:e2e (start both servers first; installed Google Chrome is used)
+
+The browser suite checks desktop and mobile layouts, authentication, signup, reporting dates, CSV exports, profile updates, team creation, empty data, API failures and recovery. Screenshots and the HTML report are written to ignored test-results and playwright-report directories. E2E_BASE_URL and E2E_API_URL override the server addresses.
+
+Klaviyo uses the Reporting API with campaign analytics and metric lookup; its key needs campaigns:read and metrics:read. Reports are cached for one minute to reduce rate limiting. Meta's currently configured application has been deleted and needs a replacement access token/application. Shopify and Google Ads retain the existing sample-data implementations. Every sample source is marked in the dashboard and exported CSV.
+
+## Workspace pages
+
+- /platforms/klaviyo: platform metrics and source-provided campaign activity.
+- /connection-health: live/sample/error status, check times, and credential links.
+- /history: actual captured snapshots, reporting-period filters, and daily/weekly/monthly capture grouping. Missing live data is blank, never plotted as zero.
+- /goals: monthly targets, matching calendar-month snapshots, and previous-month baselines. Sample data cannot count towards goal progress.
+- /reports: immutable saved reports, CSV export, and printable summaries with methodology.
+
+Analytics, goals, reports, and connection checks are persisted locally in dct-back/data/workspaces.json. Provider keys are excluded from this file. Set DCT_ANALYTICS_FILE to use another local path; the API tests use isolated temporary storage. User profiles and credentials retain the existing in-memory development behavior.
+
+Refreshing the dashboard records an observation. Identical data for the same reporting period on the same day is deduplicated. History tracks capture dates and does not invent daily emissions or add overlapping reporting periods together.
+
+---
+
 ## Get Started
 
 This guide describes how to use DigitalOcean App Platform to run a sample React application.

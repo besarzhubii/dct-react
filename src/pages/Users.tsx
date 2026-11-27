@@ -1,82 +1,205 @@
-import Sidebar from '../components/Sidebar';
-import { Box } from '@mui/material';
-import * as React from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid';
-import AddUserModal from '../components/AddUserModal';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
-
-function createData(name: string, email: string, id: number) {
-    return { name, email };
+import React, { useEffect, useRef, useState } from "react";
+import { Link, Navigate } from "react-router-dom";
+import AppShell from "../components/AppShell";
+import Icon from "../components/Icon";
+import { api, getSession, errorMessage } from "../services/client";
+export default function Users() {
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [query, setQuery] = useState("");
+  const [refresh, setRefresh] = useState(0);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const admin = getSession()?.role === "superadmin";
+  useEffect(() => {
+    if (!admin) return;
+    let active = true;
+    setLoading(true);
+    api
+      .get("/user/all-users")
+      .then(({ data }) => {
+        if (active) {
+          setUsers(data);
+          setError("");
+        }
+      })
+      .catch((err) => {
+        if (active) setError(errorMessage(err));
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [admin, refresh]);
+  useEffect(() => {
+    if (open) dialog.current?.showModal();
+    else dialog.current?.close();
+  }, [open]);
+  async function add(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const values = Object.fromEntries(new FormData(e.currentTarget));
+    setSaving(true);
+    setFormError("");
+    try {
+      await api.post("/user/add", values);
+      setOpen(false);
+      setRefresh((n) => n + 1);
+    } catch (err) {
+      setFormError(errorMessage(err));
+    } finally {
+      setSaving(false);
+    }
+  }
+  if (!admin) return <Navigate to="/dashboard" replace />;
+  const filtered = users.filter((u) =>
+    `${u.name} ${u.email}`.toLowerCase().includes(query.toLowerCase()),
+  );
+  return (
+    <AppShell title="Team members">
+      <div className="page-heading">
+        <div>
+          <div className="heading-overline">
+            <span className="tiny-orb" /> Better together
+          </div>
+          <h1>
+            Team members<span className="heading-dot">.</span>
+          </h1>
+          <p>Manage your team and explore each member’s carbon footprint.</p>
+        </div>
+        <button
+          className="button primary"
+          onClick={() => {
+            setFormError("");
+            setOpen(true);
+          }}
+        >
+          <Icon name="plus" size={16} />
+          Add member
+        </button>
+      </div>
+      {error && (
+        <div className="form-error" role="alert">
+          {error}{" "}
+          <button
+            className="text-button"
+            onClick={() => setRefresh((n) => n + 1)}
+          >
+            Try again
+          </button>
+        </div>
+      )}
+      <section className="glass platforms-panel">
+        <div className="panel-heading">
+          <h2>
+            Your team{" "}
+            <span className="count-badge">{users.length} members</span>
+          </h2>
+          <label className="search-field">
+            <Icon name="search" size={16} />
+            <input
+              aria-label="Search team members"
+              placeholder="Search members…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </label>
+        </div>
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Email address</th>
+                <th>Carbon overview</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((u) => (
+                <tr key={u.id}>
+                  <td>
+                    <div className="platform-cell">
+                      <span className="avatar">{u.name.slice(0, 1)}</span>
+                      {u.name}
+                    </div>
+                  </td>
+                  <td>{u.email}</td>
+                  <td>
+                    <Link
+                      className="text-button"
+                      to={`/user-graph?userId=${u.id}`}
+                    >
+                      View footprint <Icon name="arrow" size={15} />
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+              {!filtered.length && (
+                <tr>
+                  <td colSpan={3} className="empty-search">
+                    {loading
+                      ? "Loading members…"
+                      : query
+                        ? "No members match your search."
+                        : "No team members yet. Add your first member to get started."}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <dialog
+        aria-labelledby="member-dialog-title"
+        ref={dialog}
+        className="glass modal native-dialog"
+        onCancel={() => setOpen(false)}
+      >
+        <div className="panel-heading">
+          <h2 id="member-dialog-title">Add a team member</h2>
+          <button
+            className="icon-button"
+            aria-label="Close add member"
+            onClick={() => setOpen(false)}
+          >
+            <Icon name="close" />
+          </button>
+        </div>
+        {open && (
+          <form onSubmit={add}>
+            <label className="field">
+              Full name
+              <input autoFocus name="name" required maxLength={100} />
+            </label>
+            <label className="field">
+              Email address
+              <input type="email" name="email" required />
+            </label>
+            <label className="field">
+              Temporary password
+              <input
+                type="password"
+                name="password"
+                required
+                minLength={6}
+                autoComplete="new-password"
+              />
+            </label>
+            {formError && (
+              <p className="form-error" role="alert">
+                {formError}
+              </p>
+            )}
+            <button className="button primary" disabled={saving}>
+              {saving ? "Adding…" : "Add member"}
+            </button>
+          </form>
+        )}
+      </dialog>
+    </AppShell>
+  );
 }
-
-
-const Main = () => {
-    const [open, setOpen] = React.useState(false);
-    const [users, setUsers] = React.useState([] as unknown as [{ name: string, email: string, id: number }]);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
-
-    React.useEffect(() => {
-
-        axios.get(`${process.env.REACT_APP_API}/user/all-users`)
-            .then(function (response) {
-                setUsers(response.data);
-            })
-            .catch(function (error) {
-            })
-    }, [open]);
-    return <Box sx={{ display: 'flex', backgroundColor: '#f8f8f8' }}>
-        <Sidebar />
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-            <AddUserModal handleClose={handleClose} open={open} setOpen={setOpen} />
-            <Grid container spacing={2}>
-                <Grid item xs={8}>
-                </Grid>
-                <Grid item xs={4} style={{ textAlign: 'right' }}>
-                    <button style={{
-                        margin: "20px 50px",
-                        padding: "10px 20px",
-                        color: "white",
-                        backgroundColor: "#623CEA",
-                        outline: "none",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer"
-                    }} onClick={handleOpen}>Add User</button>
-                </Grid>
-            </Grid>
-            <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="center">Full Name</TableCell>
-                            <TableCell align="center">E-mail</TableCell>
-                            <TableCell align="center">Check their Carbon Data</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {users.length ? users?.map((row, ind) => (
-                            <TableRow
-                                key={ind}
-                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                                <TableCell align="center">{row.name}</TableCell>
-                                <TableCell align="center">{row.email}</TableCell>
-                                <TableCell align="center"><Link to={`/user-graph?userId=${row?.id}&userName=${row?.name}`}>View Data</Link></TableCell>
-                            </TableRow>
-                        )) : <p style={{ textAlign: 'center' }}>No users found</p>}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </Box>
-    </Box>
-}
-export default Main;
